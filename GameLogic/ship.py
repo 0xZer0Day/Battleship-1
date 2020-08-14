@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Carrier (4), Battleship (3), Cruiser (2), Destroyer (1)
 
 # format of coordinates: [[2,3],[2,4],[2,5]]

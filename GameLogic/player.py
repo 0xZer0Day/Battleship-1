@@ -1,4 +1,6 @@
-from .board import Board, BoardDefense, BoardAttack
+#!/usr/bin/env python3
+
+from .board import BoardDefense, BoardAttack
 
 class Player:
     def __init__(self, name, defense_coordinates):
@@ -12,9 +14,8 @@ class Player:
     def get_board_attack(self):
         return self.board_attack
 
-    def turn_attack(self, coordinates, hit, deadly_hit):
-        self.board_attack.turn_attack(coordinates, hit, deadly_hit)
+    def turn_attack(self, coordinates, hit, deadly_hit, dead_ship_coordinates):
+        self.board_attack.turn_attack(coordinates, hit, deadly_hit, dead_ship_coordinates)
 
     def turn_defense(self, coordinates):
-        message = self.board_defense.turn_defense(coordinates)
-        return message
+        return self.board_defense.turn_defense(coordinates)

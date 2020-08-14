@@ -1,9 +1,44 @@
+#!/usr/bin/env python3
+
 from .ship import Carrier, Battleship, Cruiser, Destroyer
 
 
-class Board:
+class BoardAttack:
     def __init__(self):
-        self.board = self.construct_empty_board()
+        self.board = self.construct_empty_attack_board()
+
+    def turn_attack(self, coordinates, hit, deadly_hit, dead_ship_coordinates):
+        # Kennzeichnung des Boards für den Spieler
+        # kein Rückgabewert
+
+        # select field
+        self.board[coordinates[0]][coordinates[1]][0] = 1
+        if hit:
+            self.board[coordinates[0]][coordinates[1]][1] = 1
+            if deadly_hit:
+                for coordinate in dead_ship_coordinates:
+                    self.board[coordinate[0]][coordinate[1]][2] = 1
+
+    def construct_empty_attack_board(self):
+        # 10 rows
+        # 10 columns
+        # every field contains a list with the following format:
+        #   [field_is_selected, hit, deadly_hit]
+        # if there is no ship on a field the shipname is ""
+        board = []
+        row = []
+        for i in range (0, 10):
+            for j in range (0, 10):
+                row.append([0,0,0])
+            board.append(row)
+            row = []
+        return board
+
+
+
+class BoardDefense:
+    def __init__(self, defense_coordinates):
+        self.board = self.construct_empty_defense_board()
         self.carrier1 = None
         self.battleship1 = None
         self.battleship2 = None
@@ -18,41 +53,6 @@ class Board:
                         self.cruiser1, self.cruiser2, self.cruiser3,
                         self.destroyer1, self.destroyer2, self.destroyer3,
                         self.destroyer4]
-
-    def construct_empty_board(self):
-        # 10 rows
-        # 10 columns
-        # every field contains a list with the following format:
-        #   [shipname, field_is_selected]
-        # if there is no ship on a field the shipname is "o"
-        board = []
-        row = []
-        for i in range (0, 10):
-            for j in range (0, 10):
-                row.append(["o",0])
-            board.append(row)
-            row = []
-        return board
-
-
-class BoardAttack(Board):
-    def __init__(self):
-        Board.__init__(self)
-
-    def turn_attack(self, coordinates, hit, deadly_hit):
-        # Kennzeichnung des Boards für den Spieler
-        # kein Rückgabewert
-        self.board[coordinates[0]][coordinates[1]][1] = 1
-        if hit:
-            pass
-        pass
-        # [shipname, field_is_selected]
-
-
-
-class BoardDefense(Board):
-    def __init__(self, defense_coordinates):
-        Board.__init__(self)
         self.initialize_coordinates(defense_coordinates)
         self.initialize_ships(defense_coordinates)
 
@@ -111,6 +111,7 @@ class BoardDefense(Board):
         hit = False
         deadly_hit = False
         win = False
+        dead_ship_coordinates = []
 
         # Enter coordinate in board
         self.board[coordinates[0]][coordinates[1]][1] = 1
@@ -118,16 +119,19 @@ class BoardDefense(Board):
         shipname = self.board[coordinates[0]][coordinates[1]][0]
 
         # Check for hit
-        if shipname != "o":
+        if shipname != "":
             hit = True
 
             # Check for deadly hit
             ship = self.select_ship(shipname)
             deadly_hit = True
-            for ship_coordinate in ship.get_coordinates():
+            ship_coordinates = ship.get_coordinates()
+            for ship_coordinate in ship_coordinates:
                 if self.board[ship_coordinate[0]][ship_coordinate[1]][1] == 0:
                     deadly_hit = False
                     break
+            if deadly_hit:
+                dead_ship_coordinates = ship_coordinates
 
             # Set ship inactive
             if deadly_hit:
@@ -140,7 +144,7 @@ class BoardDefense(Board):
                     win = False
                     break
 
-        return [hit, deadly_hit, win]
+        return [hit, deadly_hit, win, dead_ship_coordinates]
 
     def select_ship(self, shipname):
         if shipname == "carrier1":
@@ -185,6 +189,21 @@ class BoardDefense(Board):
             self.destroyer3.set_inactive()
         else:
             self.destroyer4.set_inactive()
+
+    def construct_empty_defense_board(self):
+        # 10 rows
+        # 10 columns
+        # every field contains a list with the following format:
+        #   [shipname, field_is_selected]
+        # if there is no ship on a field the shipname is ""
+        board = []
+        row = []
+        for i in range (0, 10):
+            for j in range (0, 10):
+                row.append(["",0])
+            board.append(row)
+            row = []
+        return board
 
 
 if __name__ == "__main__":

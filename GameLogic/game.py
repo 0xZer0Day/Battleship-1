@@ -20,31 +20,30 @@ class Game:
         board_attack = None
         if self.current_player == 1:
             board_defense = self.player1.get_board_defense()
-            board_attack = self.player2.get_board_attack()
+            board_attack = self.player1.get_board_attack()
         else:
             board_defense = self.player2.get_board_defense()
-            board_attack = self.player1.get_board_attack()
+            board_attack = self.player2.get_board_attack()
         return [board_defense, board_attack]
 
     def turn(self, coordinates):
         # coordinates: [3,6]
         #   -> [row, column]
-        # return message: [bool hit, bool deadly_hit, bool win]
+        # return message: [hit: Bool, deadly_hit: Bool, win: Bool, dead_ship_coordinates: List]
         message = None
 
-        while True:
-            if self.current_player == 1:
-                message = self.player2.turn_defense(coordinates)
-                self.player1.turn_attack(coordinates, message[0], message[1])
-            else:
-                message = self.player1.turn_defense(coordinates)
-                self.player2.turn_attack(coordinates, message[0], message[1])
-            if message[0] == 0 or message[2] == 1:
-                break
-
         if self.current_player == 1:
-            self.current_player = 2
+            message = self.player2.turn_defense(coordinates)
+            self.player1.turn_attack(coordinates, message[0], message[1], message[3])
         else:
-            self.current_player = 1
+            message = self.player1.turn_defense(coordinates)
+            self.player2.turn_attack(coordinates, message[0], message[1], message[3])
+
+        # Only changing current_player if there is no hit
+        if message[0] == 0:
+            if self.current_player == 1:
+                self.current_player = 2
+            else:
+                self.current_player = 1
 
         return message
