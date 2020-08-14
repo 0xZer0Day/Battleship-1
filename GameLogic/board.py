@@ -8,10 +8,13 @@ class BoardAttack:
         self.board = self.construct_empty_attack_board()
 
     def turn_attack(self, coordinates, hit, deadly_hit, dead_ship_coordinates):
-        # Kennzeichnung des Boards für den Spieler
-        # kein Rückgabewert
+        # coordinates: [3,6]
+        #        -> [row, column]
+        # hit: Bool
+        # deadly_hit: Bool
+        # dead_ship_coordinates: List
 
-        # select field
+        # updating fields
         self.board[coordinates[0]][coordinates[1]][0] = 1
         if hit:
             self.board[coordinates[0]][coordinates[1]][1] = 1
@@ -35,9 +38,10 @@ class BoardAttack:
         return board
 
 
-
 class BoardDefense:
     def __init__(self, defense_coordinates):
+        # defense_coordinates: [["carrier1", 2, 4], ["battleship1", 9, 9], ...]
+        #            -> [shipname: String, row: Int, column: Int]
         self.board = self.construct_empty_defense_board()
         self.carrier1 = None
         self.battleship1 = None
@@ -49,14 +53,16 @@ class BoardDefense:
         self.destroyer2 = None
         self.destroyer3 = None
         self.destroyer4 = None
+        self.initialize_coordinates(defense_coordinates)
+        self.initialize_ships(defense_coordinates)
         self.ships = [self.carrier1, self.battleship1, self.battleship2,
                         self.cruiser1, self.cruiser2, self.cruiser3,
                         self.destroyer1, self.destroyer2, self.destroyer3,
                         self.destroyer4]
-        self.initialize_coordinates(defense_coordinates)
-        self.initialize_ships(defense_coordinates)
 
     def initialize_ships(self, coordinates):
+        # coordinates: [["carrier1", 2, 4], ["battleship1", 9, 9], ...]
+        #            -> [shipname: String, row: Int, column: Int]
         coordinates_carrier1 = []
         coordinates_battleship1 = []
         coordinates_battleship2 = []
@@ -102,11 +108,15 @@ class BoardDefense:
         self.destroyer4 = Destroyer(coordinates_destroyer4)
 
     def initialize_coordinates(self, coordinates):
+        # coordinates: [["carrier1", 2, 4], ["battleship1", 9, 9], ...]
+        #            -> [shipname: String, row: Int, column: Int]
         for i in range(0, len(coordinates)):
             self.board[coordinates[i][1]][coordinates[i][2]][0] = coordinates[i][0]
 
     def turn_defense(self, coordinates):
-        # returns hit, deadly_hit, win
+        # coordinates: [3,6]
+        #        -> [row, column]
+        # returns list: [hit: Bool, deadly_hit: Bool, win: Bool, dead_ship_coordinates: List]
 
         hit = False
         deadly_hit = False
@@ -133,7 +143,7 @@ class BoardDefense:
             if deadly_hit:
                 dead_ship_coordinates = ship_coordinates
 
-            # Set ship inactive
+            # Set ship inactive if deadly_hit
             if deadly_hit:
                 self.set_ship_inactive(shipname)
 
@@ -147,6 +157,8 @@ class BoardDefense:
         return [hit, deadly_hit, win, dead_ship_coordinates]
 
     def select_ship(self, shipname):
+        # shipname: String
+        # returns ship: Ship
         if shipname == "carrier1":
             return self.carrier1
         elif shipname == "battleship1":
@@ -169,6 +181,7 @@ class BoardDefense:
             return self.destroyer4
 
     def set_ship_inactive(self, shipname):
+        # shipname: String
         if shipname == "carrier1":
             self.carrier1.set_inactive()
         elif shipname == "battleship1":
@@ -204,11 +217,3 @@ class BoardDefense:
             board.append(row)
             row = []
         return board
-
-
-if __name__ == "__main__":
-    # defense_coordinates = [["carrier1", 2, 4], ["battleship1", 9, 9]]
-    # board = BoardDefense(defense_coordinates)
-    # print(board.board)
-    board = BoardAttack()
-    print(board.board)
